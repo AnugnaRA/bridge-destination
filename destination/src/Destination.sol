@@ -48,7 +48,6 @@ contract Destination is AccessControl {
     BridgeToken token = new BridgeToken(underlying, name, symbol, msg.sender);
 
     token.grantRole(token.MINTER_ROLE(), address(this));
-    token.grantRole(token.BURNER_ROLE(), address(this));
 
     wrapped_tokens[underlying] = address(token);
     underlying_tokens[address(token)] = underlying;
