@@ -38,21 +38,14 @@ contract Destination is AccessControl {
     emit Unwrap(token.underlying(), tokenAddress, msg.sender, recipient, amount);
 	}
 	
-	function createToken(address underlying, string memory name, string memory symbol)
-    external
-    onlyRole(CREATOR_ROLE)
-    returns (address)
-  {
+	function createToken(address underlying, string memory name, string memory symbol) external onlyRole(CREATOR_ROLE) returns (address) {
     require(wrapped_tokens[underlying] == address(0), "Token already created");
 
     BridgeToken token = new BridgeToken(underlying, name, symbol, msg.sender);
-
-    token.grantRole(token.MINTER_ROLE(), address(this));
-
     wrapped_tokens[underlying] = address(token);
     underlying_tokens[address(token)] = underlying;
 
     emit Creation(underlying, address(token));
     return address(token);
-  }
+	}
 }
