@@ -34,29 +34,29 @@ contract Destination is AccessControl {
 	
 	function unwrap(address tokenAddress, address recipient, uint256 amount) external {
     BridgeToken token = BridgeToken(tokenAddress);
-    address underlying = token.underlying();
 
     token.burnFrom(msg.sender, amount);
 
-    emit Unwrap(underlying, tokenAddress, msg.sender, recipient, amount);
-	}
+    emit Unwrap(token.underlying(), tokenAddress, msg.sender, recipient, amount);
+}
 	
 	function createToken(address underlying, string memory name, string memory symbol)
     external
     onlyRole(CREATOR_ROLE)
     returns (address)
-	
-	{
+{
     require(wrapped_tokens[underlying] == address(0), "Token already created");
 
-    BridgeToken token = new BridgeToken(underlying, name, symbol, msg.sender);
+    BridgeToken token = new BridgeToken(underlying, name, symbol, address(this));
 
+    // Grant mint & burn roles to the contract itself (Destination)
     token.grantRole(token.MINTER_ROLE(), address(this));
+    token.grantRole(token.BURNER_ROLE(), address(this));
 
     wrapped_tokens[underlying] = address(token);
     underlying_tokens[address(token)] = underlying;
 
     emit Creation(underlying, address(token));
     return address(token);
-	}
+}
 }
